@@ -46,10 +46,11 @@ int find(int N, int M, Coord* queen) {
 		}
 		return find(N, M-1, queen);
 	}
-	if (!conflict(N, M, queen))
-		return find(N, M+1, queen);	
-	queen[M].y += 1;
-	return find(N, M, queen);
+	if (conflict(N, M, queen)) {
+		queen[M].y += 1;
+		return find(N, M, queen);
+	}
+	return find(N, M+1, queen);
 }
 
 void dame(int N) {
