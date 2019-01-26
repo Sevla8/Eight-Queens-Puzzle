@@ -39,6 +39,8 @@ int find(int N, int M, Coord* queen) {
 	if (M == N)
 		return 1;
 	if (queen[M].y >= N) {
+		if (!M)
+			return 0;
 		queen[M-1].y += 1;
 		for (int i = M; i < N; i += 1) {
 			queen[i].x = i;
@@ -63,14 +65,15 @@ void dame(int N) {
 
 	int x = find(N, 0, queen);
 
-	print(N, queen);
+	if (x)
+		print(N, queen);
+	else
+		printf("No solutions\n");
 
 	free(queen);
 }
 
 int main(int argc, char* argv[]) {
-
-	dame(8);
-
+	dame(18);
 	return 0;
 }
