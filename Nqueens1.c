@@ -36,6 +36,7 @@ void print(int N, Coord* queen) {
 }
 
 int find(int N, int M, Coord* queen) {
+	// version #1
 	if (M == N)
 		return 1;
 	if (queen[M].y >= N) {
@@ -53,11 +54,22 @@ int find(int N, int M, Coord* queen) {
 		return find(N, M, queen);
 	}
 	return find(N, M+1, queen);
+
+	// version #2
+	// if (M == N)
+	// 	return 1;
+	// for (int i = 0; i < N; i += 1) {
+	// 	queen[M].y = i;
+	// 	if (!conflict(N, M, queen)) {
+	// 		if (find(N, M+1, queen))
+	// 			return 1;
+	// 	}
+	// }
+	// return 0;
 }
 
-void dame(int N) {
+void queen(int N) {
 	Coord* queen = (Coord*) malloc(sizeof(Coord)*N);
-
 	for (int i = 0; i < N; i += 1) {
 		queen[i].x = i;
 		queen[i].y = 0;
@@ -74,6 +86,6 @@ void dame(int N) {
 }
 
 int main(int argc, char* argv[]) {
-	dame(18);
+	queen(10);
 	return 0;
 }

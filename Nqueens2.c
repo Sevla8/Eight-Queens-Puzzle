@@ -35,7 +35,7 @@ int est_vide(Pile* p) {
 	return 0;
 }
 
-int sommet(Pile* p) {
+Coord sommet(Pile* p) {
 	if (p != NULL) {
 		return p->elt;
 	}
@@ -58,11 +58,11 @@ int abs(int x) {
    return x;
 }
 
-int conflict(int N, int M, Coord* queen) {
+int conflict(int N, int M, Pile* queen,  Coord* res) {
 	for (int i = 0; i < M; i += 1)  {
-		if (queen[i].y == queen[M].y)
+		if (res[i].y == queen->elt.y)
 			return 1;
-		if (abs(queen[i].x - queen[M].x) == abs(queen[i].y - queen[M].y))
+		if (abs(res[i].x - queen->elt.x) == abs(res[i].y - queen->elt.y))
 			return 1;
 	}
 	return 0;
@@ -80,25 +80,43 @@ void print(int N, Coord* queen) {
 	}
 }
 
-int find(int N, int M, Coord* queen) {
-	if (M == N)
+int find(int N, int M, Pile* queen, Coord* res) {
+	if (queen == NULL)
 		return 1;
-	if (queen[M].y >= N) {
-		queen[M-1].y += 1;
+	if (queen->elt.y >= N) {
+		if (!M)
+			return 0;
+		Coord coord;
+		coord.x = res[M-1].x;
+		coord.y = res[M-1].y + 1;
+		queen = empiler(queen, coord);
 		for (int i = M; i < N; i += 1) {
-			queen[i].x = i;
-			queen[i].y = 0;
+			res[M].x = i;
+			res[M].y = 0;
 		}
-		return find(N, M-1, queen);
+		for (Pile* cur = queen; cur != NULL; cur = cur->suivant) {
+			cur->elt.x = res[M].x;
+			cur->elt.y = res[M].y;
+		}
+		return find(N, M-1, queen, res);
 	}
-	if (conflict(N, M, queen)) {
-		queen[M].y += 1;
-		return find(N, M, queen);
+	if (conflict(N, M, queen, res)) {
+		queen->elt.y += 1;
+		return find(N, M, queen, res);
 	}
-	return find(N, M+1, queen);
+	res[M].x = queen->elt.x;
+	res[M].y = queen->elt.y;
+	queen = depiler(queen);
+	return find(N, M+1, queen, res);
 }
 
 void dame(int N) {
+	Coord* res = (Coord*) malloc(sizeof(Coord)*N);
+	for (int i = 0; i < N; i += 1) {
+		res[i].x = i;
+		res[i].y = 0;
+	}
+
 	Pile* queen = NULL;
 	for (int i = 0; i < N; i += 1) {
 		Coord elt;
@@ -108,9 +126,9 @@ void dame(int N) {
 	}
 	queen = inverse(queen);
 
-	find(N, 0, queen);
+	find(N, 0, queen, res);
 
-	print(N, queen);
+	print(N, res);
 }
 
 int main(int argc, char* argv[]) {
