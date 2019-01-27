@@ -86,6 +86,6 @@ void queen(int N) {
 }
 
 int main(int argc, char* argv[]) {
-	queen(10);
+	queen(8);
 	return 0;
 }

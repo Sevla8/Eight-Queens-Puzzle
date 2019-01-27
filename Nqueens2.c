@@ -58,11 +58,11 @@ int abs(int x) {
    return x;
 }
 
-int conflict(int N, int M, Pile* queen,  Coord* res) {
+int conflict(int N, int M, Pile* pile,  Coord* queen) {
 	for (int i = 0; i < M; i += 1)  {
-		if (res[i].y == queen->elt.y)
+		if (queen[i].y == pile->elt.y)
 			return 1;
-		if (abs(res[i].x - queen->elt.x) == abs(res[i].y - queen->elt.y))
+		if (abs(queen[i].x - pile->elt.x) == abs(queen[i].y - pile->elt.y))
 			return 1;
 	}
 	return 0;
@@ -80,55 +80,54 @@ void print(int N, Coord* queen) {
 	}
 }
 
-int find(int N, int M, Pile* queen, Coord* res) {
-	if (queen == NULL)
-		return 1;
-	if (queen->elt.y >= N) {
-		if (!M)
-			return 0;
-		Coord coord;
-		coord.x = res[M-1].x;
-		coord.y = res[M-1].y + 1;
-		queen = empiler(queen, coord);
-		for (int i = M; i < N; i += 1) {
-			res[M].x = i;
-			res[M].y = 0;
+int find(int N, int M, Pile* pile, Coord* queen) {
+	while (!est_vide(pile)) {
+		if (pile->elt.y >= N) {
+			if(!M)
+				return 0;
+			for (Pile* cur = pile; cur != NULL; cur = cur->suivant)
+				cur->elt.y = 0;
+			Coord coord;
+			coord.x = queen[M-1].x;
+			coord.y = queen[M-1].y + 1;
+			pile = empiler(pile, coord);
+			M -= 1;
 		}
-		for (Pile* cur = queen; cur != NULL; cur = cur->suivant) {
-			cur->elt.x = res[M].x;
-			cur->elt.y = res[M].y;
+		else if (conflict(N, M, pile, queen)) {
+			pile->elt.y += 1;
 		}
-		return find(N, M-1, queen, res);
+		else {
+			queen[M].x = pile->elt.x;
+			queen[M].y = pile->elt.y;
+			pile = depiler(pile);
+			M += 1;
+		}
 	}
-	if (conflict(N, M, queen, res)) {
-		queen->elt.y += 1;
-		return find(N, M, queen, res);
-	}
-	res[M].x = queen->elt.x;
-	res[M].y = queen->elt.y;
-	queen = depiler(queen);
-	return find(N, M+1, queen, res);
+	return 1;
 }
 
 void dame(int N) {
-	Coord* res = (Coord*) malloc(sizeof(Coord)*N);
+	Coord* queen = (Coord*) malloc(sizeof(Coord)*N);
 	for (int i = 0; i < N; i += 1) {
-		res[i].x = i;
-		res[i].y = 0;
+		queen[i].x = i;
+		queen[i].y = 0;
 	}
 
-	Pile* queen = NULL;
+	Pile* pile = NULL;
 	for (int i = 0; i < N; i += 1) {
 		Coord elt;
 		elt.x = i;
 		elt.y = 0;
-		queen = empiler(queen, elt);
+		pile = empiler(pile, elt);
 	}
-	queen = inverse(queen);
+	pile = inverse(pile);
 
-	find(N, 0, queen, res);
+	int x = find(N, 0, pile, queen);
 
-	print(N, res);
+	if (x)
+		print(N, queen);
+	else
+		printf("No solutions\n");
 }
 
 int main(int argc, char* argv[]) {
